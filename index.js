@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = function(defaultUserAgent) {
-    var userAgent = defaultUserAgent || window.navigator.userAgent || '';
+    var userAgent = defaultUserAgent || getWindowUserAgent();
     
     var osPatterns = {
         'Android': 'android',
@@ -48,6 +48,18 @@ module.exports = function(defaultUserAgent) {
     var os = matchOS();
     var browser = matchBrowser();
     var device = matchDevice();
+
+    function getWindowUserAgent() {
+        if (typeof window !== 'undefined') {
+            return window.navigator.userAgent;
+        }
+
+        if (typeof global !== 'undefined') {
+            return global && global.navigator ? global.navigator.userAgent : '';
+        }
+
+        return '';
+    }
     
     function getUserAgent() {
         return userAgent;
