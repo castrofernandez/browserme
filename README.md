@@ -1,0 +1,2 @@
+# browserme
+Browser detection library
