@@ -1,0 +1,23 @@
+{
+  "name": "browserme",
+  "version": "1.0.0",
+  "description": "Browser detection library",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --reporter spec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/castrofernandez/browserme.git"
+  },
+  "author": "Juan Castro Fernández (juancastro.es)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/castrofernandez/browserme/issues"
+  },
+  "homepage": "https://github.com/castrofernandez/browserme#readme",
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "mocha": "^5.0.4"
+  }
+}
