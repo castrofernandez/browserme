@@ -1,214 +1,238 @@
 'use strict';
 
 module.exports = function(defaultUserAgent) {
-    var userAgent = defaultUserAgent || getWindowUserAgent();
-    
-    var osPatterns = {
-        'Android': 'android',
-        'iPhone': 'iphone',
-        'iPad': 'ipad',
-        'Macintosh': 'mac',
-        'Windows': 'windows',
-        'Linux': 'linux',
-        'Open BSD': 'open-bsd',
-        'Sun OS': 'sun-os',
-        'QNX': 'qnx',
-        'BeOS': 'beos',
-        'OS/2': 'os-2',
-    };
-    
-    // https://developer.mozilla.org/en-US/docs/Web/HTTP/Browser_detection_using_the_user_agent
-    var browserPatterns = {
-        'firefox': {
-            dos: ['Firefox'],
-            donts: ['Seamonkey']
-        },
-        'seamonkey': {
-            dos: ['Seamonkey']
-        },
-        'chrome': {
-            dos: ['Chrome'],
-            donts: ['Chromium']
-        }, 	 
-        'chromium': {
-            dos: ['Chromium']
-        },
-        'safari': {
-            dos: ['Safari'],
-            donts: ['Chrome', 'Chromium']
-        },
-        'opera': {
-            dos: ['OPR', 'Opera']
-        },
-        'ie': {
-            dos: ['MSIE']
-        }
-    };
-    
-    var os = matchOS();
-    var browser = matchBrowser();
-    var device = matchDevice();
+  var osPatterns = {
+    'Android': 'android',
+    'iPhone': 'iphone',
+    'iPad': 'ipad',
+    'Macintosh': 'mac',
+    'Windows': 'windows',
+    'Linux': 'linux',
+    'Open BSD': 'open-bsd',
+    'Sun OS': 'sun-os',
+    'QNX': 'qnx',
+    'BeOS': 'beos',
+    'OS/2': 'os-2'
+  };
 
-    function getWindowUserAgent() {
-        if (typeof window !== 'undefined') {
-            return window.navigator.userAgent;
-        }
+  // https://developer.mozilla.org/en-US/docs/Web/HTTP/Browser_detection_using_the_user_agent
+  var browserPatterns = {
+    'firefox': {
+      dos: ['Firefox'],
+      donts: ['Seamonkey']
+    },
+    'seamonkey': {
+      dos: ['Seamonkey']
+    },
+    'chrome': {
+      dos: ['Chrome'],
+      donts: ['Chromium']
+    },
+    'chromium': {
+      dos: ['Chromium']
+    },
+    'safari': {
+      dos: ['Safari'],
+      donts: ['Chrome', 'Chromium']
+    },
+    'opera': {
+      dos: ['OPR', 'Opera']
+    },
+    'ie': {
+      dos: ['MSIE']
+    }
+  };
 
-        if (typeof global !== 'undefined') {
-            return global && global.navigator ? global.navigator.userAgent : '';
-        }
+  /* Singleton instances */
+  var userAgent = null;
+  var os = null;
+  var browser = null;
+  var device = null;
 
-        return '';
-    }
-    
-    function getUserAgent() {
-        return userAgent;
-    }
-    
-    function strContains(str, needle) {
-        return str.indexOf(needle) !== -1;
-    }
-    
-    function matchOS() {
-        var userAgent = getUserAgent();
-    
-        for (var pattern in osPatterns) {
-            if (strContains(userAgent, pattern)) {
-                return osPatterns[pattern];
-            }
-        }
-    
-        return undefined;
-    }
-    
-    function matchBrowser() {
-        var data, dos, donts;
-    
-        for (var browser in browserPatterns) {
-            data = browserPatterns[browser];
-            dos = data.dos || [];
-            donts = data.donts || [];
-    
-            if (checkBrowserDos(dos, true) && checkBrowserDos(donts, false)) {
-                return browser;
-            }
-        }
-    
-        return undefined;
-    }
-    
-    function checkBrowserDos(dos, contain) {
-        var userAgent = getUserAgent();
-        var length = dos.length;
-    
-        for (var i = 0; i < length; i++) {
-            if (strContains(userAgent, dos[i]) !== contain) {
-                return false;
-            }
-        }
-    
-        return true;
-    }
-    
-    function matchDevice() {
-        return strContains(getUserAgent(), 'Mobi') ? 'mobile' : 'desktop';
+  /* User agent */
+
+  function getWindowUserAgent() {
+    if (typeof window !== 'undefined') {
+      return window.navigator.userAgent;
     }
 
-    function getOS() {
-        return os;
+    if (typeof global !== 'undefined') {
+      return global && global.navigator ? global.navigator.userAgent : '';
     }
 
-    function isMac() {
-        return os === 'mac';
+    return '';
+  }
+
+  function getUserAgent() {
+    if (!userAgent) {
+      userAgent = defaultUserAgent || getWindowUserAgent();
     }
 
-    function isWindows() {
-        return os === 'windows';
+    return userAgent;
+  }
+
+  function strContains(str, needle) {
+    return str.indexOf(needle) !== -1;
+  }
+
+  /* Operating System */
+
+  function matchOS() {
+    var userAgent = getUserAgent();
+
+    for (var pattern in osPatterns) {
+      if (strContains(userAgent, pattern)) {
+        return osPatterns[pattern];
+      }
     }
 
-    function isLinux() {
-        return os === 'linux';
+    return undefined;
+  }
+
+  function getOS() {
+    if (!os) {
+      os = matchOS();
     }
 
-    function isAndroid() {
-        return os === 'android';
-    }
+    return os;
+  }
 
-    function isIphone() {
-        return os === 'iphone';
-    }
+  function isMac() {
+    return getOS() === 'mac';
+  }
 
-    function isIpad() {
-        return os === 'ipad';
-    }
+  function isWindows() {
+    return getOS() === 'windows';
+  }
 
-    function isIOS() {
-        return isIphone() || isIpad();
-    }
+  function isLinux() {
+    return getOS() === 'linux';
+  }
 
-    function getBrowser() {
+  function isAndroid() {
+    return getOS() === 'android';
+  }
+
+  function isIphone() {
+    return getOS() === 'iphone';
+  }
+
+  function isIpad() {
+    return getOS() === 'ipad';
+  }
+
+  function isIOS() {
+    return isIphone() || isIpad();
+  }
+
+  /* Browser */
+
+  function matchBrowser() {
+    var data, dos, donts;
+
+    for (var browser in browserPatterns) {
+      data = browserPatterns[browser];
+      dos = data.dos || [];
+      donts = data.donts || [];
+
+      if (checkBrowserDos(dos, true) && checkBrowserDos(donts, false)) {
         return browser;
+      }
     }
 
-    function isFirefox() {
-        return browser === 'firefox';
+    return undefined;
+  }
+
+  function checkBrowserDos(dos, contain) {
+    var userAgent = getUserAgent();
+    var length = dos.length;
+
+    for (var i = 0; i < length; i++) {
+      if (strContains(userAgent, dos[i]) !== contain) {
+        return false;
+      }
     }
 
-    function isSeamonkey() {
-        return browser === 'seamonkey';
+    return true;
+  }
+
+  function getBrowser() {
+    if (!browser) {
+      browser = matchBrowser();
     }
 
-    function isChrome() {
-        return browser === 'chrome';
+    return browser;
+  }
+
+  function isFirefox() {
+    return getBrowser() === 'firefox';
+  }
+
+  function isSeamonkey() {
+    return getBrowser() === 'seamonkey';
+  }
+
+  function isChrome() {
+    return getBrowser() === 'chrome';
+  }
+
+  function isChromium() {
+    return getBrowser() === 'chromium';
+  }
+
+  function isSafari() {
+    return getBrowser() === 'safari';
+  }
+
+  function isOpera() {
+    return getBrowser() === 'opera';
+  }
+
+  function isIE() {
+    return getBrowser() === 'ie';
+  }
+
+  /* Device */
+
+  function matchDevice() {
+    return strContains(getUserAgent(), 'Mobi') ? 'mobile' : 'desktop';
+  }
+
+  function getDevice() {
+    if (!device) {
+      device = matchDevice();
     }
 
-    function isChromium() {
-        return browser === 'chromium';
-    }
+    return device;
+  }
 
-    function isSafari() {
-        return browser === 'safari';
-    }
+  function isMobile() {
+    return getDevice() === 'mobile';
+  }
 
-    function isOpera() {
-        return browser === 'opera';
-    }
+  function isDesktop() {
+    return getDevice() === 'desktop';
+  }
 
-    function isIE() {
-        return browser === 'ie';
-    }
-
-    function getDevice() {
-        return device;
-    }
-
-    function isMobile() {
-        return device === 'mobile';
-    }
-
-    function isDesktop() {
-        return device === 'desktop';
-    }
-
-    return {
-        getOS: getOS,
-        getBrowser: getBrowser,
-        getDevice: getDevice,
-        isMac: isMac,
-        isWindows: isWindows,
-        isLinux: isLinux,
-        isAndroid: isAndroid,
-        isIphone: isIphone,
-        isIpad: isIpad,
-        isIOS: isIOS,
-        isFirefox: isFirefox,
-        isSeamonkey: isSeamonkey,
-        isChrome: isChrome,
-        isChromium: isChromium,
-        isSafari: isSafari,
-        isOpera: isOpera,
-        isIE: isIE,
-        isMobile: isMobile,
-        isDesktop: isDesktop
-    };
+  return {
+    getOS: getOS,
+    getBrowser: getBrowser,
+    getDevice: getDevice,
+    isMac: isMac,
+    isWindows: isWindows,
+    isLinux: isLinux,
+    isAndroid: isAndroid,
+    isIphone: isIphone,
+    isIpad: isIpad,
+    isIOS: isIOS,
+    isFirefox: isFirefox,
+    isSeamonkey: isSeamonkey,
+    isChrome: isChrome,
+    isChromium: isChromium,
+    isSafari: isSafari,
+    isOpera: isOpera,
+    isIE: isIE,
+    isMobile: isMobile,
+    isDesktop: isDesktop
+  };
 };
