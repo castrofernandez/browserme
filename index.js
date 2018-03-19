@@ -1,82 +1,85 @@
 'use strict';
 
-module.exports = function(defaultUserAgent) {
-  var osPatterns = {
-    'Android': 'android',
-    'iPhone': 'iphone',
-    'iPad': 'ipad',
-    'Macintosh': 'mac',
-    'Windows': 'windows',
-    'Linux': 'linux',
-    'Open BSD': 'open-bsd',
-    'Sun OS': 'sun-os',
-    'QNX': 'qnx',
-    'BeOS': 'beos',
-    'OS/2': 'os-2'
-  };
+var osPatterns = {
+  'Android': 'android',
+  'iPhone': 'iphone',
+  'iPad': 'ipad',
+  'Macintosh': 'mac',
+  'Windows': 'windows',
+  'Linux': 'linux',
+  'Open BSD': 'open-bsd',
+  'Sun OS': 'sun-os',
+  'QNX': 'qnx',
+  'BeOS': 'beos',
+  'OS/2': 'os-2'
+};
 
-  // https://developer.mozilla.org/en-US/docs/Web/HTTP/Browser_detection_using_the_user_agent
-  var browserPatterns = {
-    'firefox': {
-      dos: ['Firefox'],
-      donts: ['Seamonkey']
-    },
-    'seamonkey': {
-      dos: ['Seamonkey']
-    },
-    'chrome': {
-      dos: ['Chrome'],
-      donts: ['Chromium']
-    },
-    'chromium': {
-      dos: ['Chromium']
-    },
-    'safari': {
-      dos: ['Safari'],
-      donts: ['Chrome', 'Chromium']
-    },
-    'opera': {
-      dos: ['OPR', 'Opera']
-    },
-    'ie': {
-      dos: ['MSIE']
-    }
-  };
+// https://developer.mozilla.org/en-US/docs/Web/HTTP/Browser_detection_using_the_user_agent
+var browserPatterns = {
+  'firefox': {
+    dos: ['Firefox'],
+    donts: ['Seamonkey']
+  },
+  'seamonkey': {
+    dos: ['Seamonkey']
+  },
+  'chrome': {
+    dos: ['Chrome'],
+    donts: ['Chromium']
+  },
+  'chromium': {
+    dos: ['Chromium']
+  },
+  'safari': {
+    dos: ['Safari'],
+    donts: ['Chrome', 'Chromium']
+  },
+  'opera': {
+    dos: ['OPR', 'Opera']
+  },
+  'ie': {
+    dos: ['MSIE']
+  }
+};
 
-  /* Singleton instances */
-  var userAgent = null;
-  var os = null;
-  var browser = null;
-  var device = null;
+/* Singleton instances */
+var userAgent = null;
+var os = null;
+var browser = null;
+var device = null;
 
-  /* User agent */
+/* User agent */
 
-  function getWindowUserAgent() {
-    if (typeof window !== 'undefined') {
-      return window.navigator.userAgent;
-    }
-
-    if (typeof global !== 'undefined') {
-      return global && global.navigator ? global.navigator.userAgent : '';
-    }
-
+function getWindowUserAgent() {
+  if (typeof window === 'undefined') {
     return '';
   }
 
-  function getUserAgent() {
-    if (!userAgent) {
-      userAgent = defaultUserAgent || getWindowUserAgent();
-    }
+  return window.navigator ? window.navigator.userAgent : '';
+}
 
-    return userAgent;
+function getUserAgent() {
+  if (!userAgent) {
+    userAgent = getWindowUserAgent();
   }
 
-  function strContains(str, needle) {
-    return str.indexOf(needle) !== -1;
-  }
+  return userAgent;
+}
 
-  /* Operating System */
+function strContains(str, needle) {
+  return str.indexOf(needle) !== -1;
+}
 
+/* Clear: needed for testing purposes */
+module.exports.clear = function() {
+  userAgent = null;
+  os = null;
+  browser = null;
+  device = null;
+};
+
+/* Operating System */
+module.exports.os = (function() {
   function matchOS() {
     var userAgent = getUserAgent();
 
@@ -125,8 +128,20 @@ module.exports = function(defaultUserAgent) {
     return isIphone() || isIpad();
   }
 
-  /* Browser */
+  return {
+    getOS: getOS,
+    isMac: isMac,
+    isWindows: isWindows,
+    isLinux: isLinux,
+    isAndroid: isAndroid,
+    isIphone: isIphone,
+    isIpad: isIpad,
+    isIOS: isIOS
+  };
+})();
 
+/* Browser */
+module.exports.browser = (function() {
   function matchBrowser() {
     var data, dos, donts;
 
@@ -192,8 +207,20 @@ module.exports = function(defaultUserAgent) {
     return getBrowser() === 'ie';
   }
 
-  /* Device */
+  return {
+    getBrowser: getBrowser,
+    isFirefox: isFirefox,
+    isSeamonkey: isSeamonkey,
+    isChrome: isChrome,
+    isChromium: isChromium,
+    isSafari: isSafari,
+    isOpera: isOpera,
+    isIE: isIE
+  };
+})();
 
+/* Device */
+module.exports.device = (function() {
   function matchDevice() {
     return strContains(getUserAgent(), 'Mobi') ? 'mobile' : 'desktop';
   }
@@ -215,24 +242,8 @@ module.exports = function(defaultUserAgent) {
   }
 
   return {
-    getOS: getOS,
-    getBrowser: getBrowser,
     getDevice: getDevice,
-    isMac: isMac,
-    isWindows: isWindows,
-    isLinux: isLinux,
-    isAndroid: isAndroid,
-    isIphone: isIphone,
-    isIpad: isIpad,
-    isIOS: isIOS,
-    isFirefox: isFirefox,
-    isSeamonkey: isSeamonkey,
-    isChrome: isChrome,
-    isChromium: isChromium,
-    isSafari: isSafari,
-    isOpera: isOpera,
-    isIE: isIE,
     isMobile: isMobile,
     isDesktop: isDesktop
   };
-};
+})();
